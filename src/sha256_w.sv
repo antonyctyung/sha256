@@ -18,20 +18,21 @@ module sha256_w(
     assign W_gen = s1 + W_reg[7] + s0 + W_reg[16];
     assign wr_ready = (t[5:4]==2'b00); // t < 16
 
+    genvar i;
+    generate
+        for (i=2; i<17; i++) 
+            always_ff @(posedge clk)
+                 if (!resetn)           W_reg[i] <= 0; 
+            else if (wr_ready && wr_en) W_reg[i] <= W_reg[i-1];
+            else if (!wr_ready)         W_reg[i] <= W_reg[i-1];
+            else                        W_reg[i] <= W_reg[i];
+    endgenerate
+
     always_ff @(posedge clk)
-    if (!resetn) begin
-        for (int i=1; i<17; i++) W_reg[i] <= 0;
-    end   
-    else if (wr_ready && wr_en) begin // shift
-        for (int i=1; i<16; i++) W_reg[i+1] <= W_reg[i];
-        W_reg[1] <= data;
-    end
-    else if (!wr_ready)
-    begin
-        for (int i=1; i<16; i++) W_reg[i+1] <= W_reg[i];
-        W_reg[1] <= W_gen;
-    end
-    else for (int i=1; i<17; i++) W_reg[i] <= W_reg[i];
+            if (!resetn)            W_reg[1] <= 0; 
+    else    if (wr_ready && wr_en)  W_reg[1] <= data;
+    else    if (!wr_ready)          W_reg[1] <= W_gen;
+    else                            W_reg[1] <= W_reg[1];
 
     assign W = (wr_ready)? data: W_gen;
 

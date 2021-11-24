@@ -2,7 +2,7 @@ module sha256_core_tb_vec_gen(
     input integer n,
     output logic [31:0] data
 );
-// using test vector from website below
+// referencing test vector from website below
 // https://qvault.io/cryptography/how-sha-2-works-step-by-step-sha-256/
 always_comb
 case (n)
